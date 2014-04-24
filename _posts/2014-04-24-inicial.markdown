@@ -1,0 +1,343 @@
+---
+layout: post
+title:  "Usando Scala com Demoiselle 2 no Eclipse"
+date:   2014-04-24 15:45:24
+categories: scala eclipse demoiselle
+---
+
+# Introdução
+
+A versão 8 da linguagem Java foi finalmente lançada. Para saber o que há de novo na linguagem, recomendo o post [Tudo Sobre Java 8](http://www.infoq.com/br/news/2013/10/tudo-sobre-java-8). Eu comemorei quando descobri que o Java 8 implementou lambdas e streams, permitindo, finalmente, alguma coisa parecida com programação funcional e referência a métodos. Quem já trabalhou com outras linguagens, ao voltar ao Java, sente uma vontade imensa de chorar quando precisa filtrar os elementos de uma lista e precisa recorrer a um for com um if, um acumulador, etc. 
+
+Felizmente, o Java 8 facilita muito esse tipo de trabalho, com a criação de "interfaces funcionais" e "lambdas".  Alguns dizem: "Mas isso já era possível com classes anônimas!". Sim, mas a sintaxe pré-Java8 é pavorosa, a legibilidade fica seriamente comprometida e há implicações muitas vezes severas na performance. No Java 8, a sintaxe melhorou, e muito, e houve algumas otimizações feitas para minimizar o impacto de se utilizar as novas construções da linguagem. Espero que o Java 8 finalmente introduza algumas mudanças muito bem-vindas na forma de se construir código Java. 
+
+Eu ficaria feliz em poder usar Java 8 agora. O problema é que, quando você lida com aplicações em ambientes corporativos, já sabe que suas chances de usar Java 8 antes de 2019 são inexistentes, ao menos para projetos legados. Ok, você não poderá utilizar Java 8 num futuro não-distante. Mas... e se você puder utilizar uma nova linguagem juntamente com a sua base de código Java já existente? E se essa linguagem permitir ao menos algumas coisas que você não consegue fazer em Java? E se essa linguagem permitir interoperabilidade com código Java? Seria bom, não é mesmo? Pois bem. eu tenho uma boa notícia: essa linguagem existe, e se chama [Scala](http://scala-lang.org/). 
+
+A linguagem Scala foi criada em 2003, e foi inicialmente criada para suportar a JVM e o .NET. Hoje em dia, a versão .NET já foi descontinuada, só restando a versão JVM. A linguagem tem algumas características bastante peculiares:
+* A linguagem Scala é bastante madura e utilizava em produção por diversas empresas (ex: Twitter, LinkedIn, Sony, etc).
+* O código Scala pode ser utilizado em Java e vice-versa. Pode até mesmo ser usada em Android, por exemplo. 
+* Permite tanto Orientação a Objeto quanto Programação Funcional.
+* Possui uma série de funcionalidades que, em Java, demandariam códigos tão complexos que fariam Nostradamus entregar os pontos e dizer: "Não sei, diga-me você o que esse código vai fazer".
+
+Eu realizei alguns testes com o uso de Scala juntamente com Java em um projeto Demoiselle 2, e descobri que, além das mudanças necessárias no arquivo pom.xml do projeto e a criação do diretório src/main/scala, não é preciso fazer nenhuma alteração para começar a utilizar Scala e, inclusive, migrar paulatinamente as classes feitas em Java para Scala. Neste post, eu mostrarei como adaptar o projeto padrão do Demoiselle, o famoso Bookmark, para usar Scala.
+
+Este tutorial utilizará o Eclipse 4.3 e JBoss 7.1, mas acredito que praticamente tudo o que for feito aqui pode ser feito da mesma maneira no Eclipse 3.7. Existe uma versão da IDE para Scala baseada em Eclipse que pode ser baixada e instalada isoladamente, mas, como desejamos trabalhar com Demoiselle, mostrarei como instalar o plugin Scala em um Eclipse já preparado para desenvolvimento para Demoiselle. 
+
+Se você já tiver um ambiente Eclipse 4.3 preparado para Demoiselle e um JBoss 7.1 já configurados, crie um projeto com archetype maven "demoiselle-jsf-jpa" versão 2.4.0 e pule diretamente para a seção [Usando o Scala](#usando-o-scala).
+
+Obs: quando eu digo "Demoiselle", estou sempre falando sobre "Demoiselle 2", pois não testei e nunca na minha vida desejo testar o uso de Scala com "Demoiselle 1". Aliás, nem queira saber o que é "Demoiselle 1". Pense em "Demoiselle 1" como o filme "Capitão América" de 1990: algo que desejamos que nunca houvesse existido.
+
+Obs 2: antes de começar, recomendo que, caso você utilize as versões de Eclipse e JBoss presentes no [Demoiselle-2-Infra](http://demoiselle.sourceforge.net/infra/site/packages/demoiselle-2-infra.html), sem nenhuma atualização ou outro software. Até mesmo uma simples atualização do plugin do JBoss pode causar problemas não com plugin do Scala em si, mas com a criação de projetos Maven, o que é bem pior, por sinal.
+
+
+# Instalação
+ 
+## Instalando os plugin Scala IDE
+
+Antes de iniciar a instalação, siga os passos indicados em http://demoiselle.sourceforge.net/infra/site/install.html para instalar um Eclipse e um workspace já preparado para o Demoiselle. Depois, abra o Eclipse, é claro ;)
+
+* No menu "Help", acesse a opção "Install New Software"
+* No canto superior direito da nova janela, clique em "Add"
+* Copie e cole no dialog as seguintes informações e, no fim, clique em Ok.
+
+Name: Scala IDE for Scala 2.11
+Location: http://download.scala-ide.org/sdk/helium/e38/scala211/stable/site 
+
+* Espere a tela carregar e o texto "Pending..." desaparecer. Então, escolha as opções "Scala IDE for Eclipse" e "Scala IDE plugins (incubation)". Clique em "Next".
+
+* Deverá aparecer a tela "Install Details". Clique em "Next". 
+* Aparecerão as informações sobre as licenças utilizadas pelos plugins. Leia atentamente todos os termos (ou não) e, se você concordar com eles, selecione "I accept the terms of the license agreements" e, finalmente, clique em "Finish".
+
+O Eclipse agora baixará e instalará os arquivos do plugin. Tenha paciência, gafanhoto, pode demorar um pouquinho. Vá tomar um café e reze para que não haja problemas, porque sabe como é, dependendo do que você tem instalado no seu Eclipse, pode haver problemas que, infelizmente, eu não consigo prever. 
+
+* Assumirei que a instalação transcorreu sem problemas. O Eclipse ficará feliz e pedirá que você o reinicie para concluir a instalação. Deixe-o mais feliz reiniciando-o! Pode acontecer de o Eclipse demorar um pouco para reiniciar, mas não se preocupe, isso só acontece desta vez.
+
+
+## Instalando o plugin Scala-M2E
+
+Infelizmente, ainda não terminou. Você ainda precisará instalar mais um plugin para que a integração do Eclipse com o Maven reconheça a linguagem Scala. Isso poderia ser feito junto com a instalação do próprio plugin Scala IDE, mas eu pessoalmente prefiro instalar um por vez, pois já tive alguns problemas tentando instalar mais de um plugin por vez. Repita o passo 2.3, desta vez, usando as informações abaixo:
+
+Name: Scala M2e
+Location: http://alchim31.free.fr/m2e-scala/update-site
+
+* Faça o mesmo que você fez para instalar o plugin anterior, mas, desta vez selecionando somente a opção "Maven Integration for Eclipse". 
+* Selecioe "Ok" para dialogs que porventura aparecerem, como uma avisando que você está instalando software de um local desconhecido.
+* Desta vez, sim, se não houve problemas durante a instalação, seu ambiente estará pronto para a linguagem Scala!
+
+
+# Criando o projeto Demoiselle inicial
+
+Vamos começar criando um projeto Demoiselle padrão. No Eclipse, pressione Ctrl+N. Depois, na caixinha de texto, digite "Maven Project". Só aparecerá uma opção para escolher, "Maven Project".
+
+
+* Na próxima tela, "New Maven Project", só clique em "Next".
+* Agora, você precisa escolher um Archetype. Clique no botão "Configure".
+* Agora, clique no botão "Add Remote Catalog". Copie e cole na janela as opções abaixo e clique em "Ok" para fechar esta janela e clique em "Ok" para fechar também a janela anterior.
+
+Catalog File: http://demoiselle.sourceforge.net/repository/archetype-catalog.xml
+Description: Demoiselle 2
+
+* Agora, nas opções "Catalog", aparecerá o item "Demoiselle 2". Selecione este item.
+* Selecione o Artifact Id "demoiselle-jsf-jpa" e clique em "Next".
+* Copie e cole na próxima janela as opções abaixo:
+
+Group Id: br.gov.frameworkdemoiselle.samples
+Artifact Id: scala_dev
+
+Deixe o restante como está. Clique em "Finish".
+
+* Se tudo der certo e você não estiver com uma instalação problemática do Eclipse, o projeto deve ser criado sem problemas. 
+
+* Depois de instalado o projeto, clique sobre ele e pressione Alt+F5 para atualizá-lo. Clique em "Ok" na janela que vai aparecer. Agora o projeto não deve mais ter nenhum desagradável "x" vermelho indicando erro.
+
+* Adicionado o projeto ao JBoss
+
+Na aba "Servers" do Eclipse, deve haver servidores JBoss pré-configurados. Clique sobre o JBoss 7.1 com o botão direito e depois clique na opção "Add/Remove".
+
+Adicione o projeto scala_dev (clicando em "Add") e depois clique em "Finish".
+
+* Testando o projeto
+
+Verifique se o projeto está OK clicando o botão direito e selecionado a opção "Start" para iniciar o JBoss. Aguarde o JBoss ser iniciado. Depois, acesse num browser a página http://localhost:8080/scala_dev. Se tudo estiver OK, você será direcionado à página do projeto Bookmark padrão. 
+
+Pronto, agora seu projeto está OK!
+
+
+# <a name="usando-o-scala">Configurando o projeto para Scala</a>
+
+
+##  Adicionando a dependência ao Scala.
+
+Adicione no arquivo pom.xml a referência ao repositório Scala, colocando logo abaixo da tag "</parent>" o conteúdo abaixo:
+
+{% highlight xml %}
+    <repositories>
+        <repository>
+            <id>scala-tools.org</id>
+            <name>Scala-tools Maven2 Repository</name>
+            <url>https://oss.sonatype.org/content/groups/scala-tools/</url>
+        </repository>
+    </repositories>
+{% endhighlight %}
+
+Adicione no mesmo pom.xml, logo antes da tag "</dependencies>", o conteúdo:
+
+{% highlight xml %}
+    <dependency>
+        <groupId>org.scala-lang</groupId>
+        <artifactId>scala-library</artifactId>
+        <version>2.11.0</version>
+    </dependency>
+{% endhighlight %}
+
+
+## Fazendo o projeto compilar código-fonte Scala:
+
+Ainda no pom.xml, agora você precisa dizer ao Maven que você vai efetivamente compilar código Scala. Adicione logo antes da tag "</project>" o conteúdo:
+
+{% highlight xml %}
+    <build>
+        <plugins>
+            <plugin>
+                <groupId>org.scala-tools</groupId>
+                <artifactId>maven-scala-plugin</artifactId>
+                <version>2.15.2</version>
+                <executions>
+
+                    <execution>
+                        <id>compile</id>
+                        <goals>
+                            <goal>compile</goal>
+                        </goals>
+                        <phase>compile</phase>
+                    </execution>
+                    <execution>
+                        <id>test-compile</id>
+                        <goals>
+                            <goal>testCompile</goal>
+                        </goals>
+                        <phase>test-compile</phase>
+                    </execution>
+                    <execution>
+                        <phase>process-resources</phase>
+                        <goals>
+                            <goal>compile</goal>
+                        </goals>
+                    </execution>
+                </executions>
+            </plugin>
+        </plugins>
+    </build>
+{% endhighlight %}
+
+Depois disso, clique sobre o projeto e pressione Alt+F5 para atualizar suas configurações. 
+
+
+## Adicionando o diretório para código-fonte Scala.
+
+É importantíssimo que você não coloque código-fonte Scala dentro do diretório src/main/java. Por esse motivo, vamos criar um diretório especial para Scala. Dentro do projeto, clique com o  botão direito em "Java Resources", depois em "New" e finalmente em "Source Folder".
+
+Project Name: Clique em browse e selecione o projeto scala_dev.
+Folder Name: src/main/scala
+
+Clique em "Finish". Agora, você tem um diretório específico para código Scala!
+
+
+## A primeira classe Scala: Bookmark
+
+Para começar, vamos migrar a entidade Bookmark para Scala. 
+
+* Apague a classe Bookmark Java do projeto. 
+* Verifique se o mapeamento não foi removido do arquivo persistence.xml. Se foi, adicione-o novamente.
+* Crie o pacote br.gov.frameworkdemoiselle.samples.scala_dev.domain no diretório src/main/scala. 
+* Crie agora a classe Scala (usando a opção "Scala Class" na lista de tipos, com o nome Bookmark no pacote 
+* Deixe o arquivo com o seguinte conteúdo:
+
+
+{% highlight scala %}
+package br.gov.frameworkdemoiselle.samples.scala_dev.domain
+
+import javax.persistence.GenerationType.{SEQUENCE}
+import javax.persistence.Entity
+import java.io.Serializable
+import javax.persistence.Id
+import javax.persistence.GeneratedValue
+import javax.persistence.Column
+import scala.beans.BeanProperty
+import java.lang
+
+@SerialVersionUID(1L)
+@Entity
+class Bookmark(_link: String, _description: String) {
+    @Id
+    @GeneratedValue(strategy = SEQUENCE)
+    @BeanProperty
+    var id: lang.Long = null
+
+    @Column
+    @BeanProperty	
+    var description: String = _link
+
+    @Column
+    @BeanProperty
+    var link: String = _description
+        
+    def this() = this(null, null)
+}
+{% endhighlight %}
+
+Perceba que há diferenças significativas entre essa classe em Java e o equivalente em Scala:
+* O construtor principal está no começo da definição da classe. 
+* O tipo é definido depois, não antes do nome da variável. Você nem precisa definir o tipo, ele é inferido automaticamente. Lembre-se, porém, que isso aqui não é Python, Ruby ou PHP. A variável tem um tipo definido, sim.
+* Não há getteres nem setters definidos. A anotação @BeanProperty cuida disso. 
+* Os construtores auxiliares podem ser definidos dentro da classe.
+
+Há outros detalhes, que podem ser explicados em outro post, já que este já está grande demais. Se vocẽ tentar rodar esse projeto no JBoss agora, ele deve funcionar sem problemas! Ok, vamos continuar.
+
+
+## Migrando a classe BookmarkBC
+
+Ok, agora vamos migrar a classe BookmarkBC para Scala! Vamos lá:
+
+* Remova a classe BookmarkBC do src/main/java
+* Crie o pacote br.gov.frameworkdemoiselle.samples.scala_dev.domain no diretório src/main/scala. 
+* Nesse pacote, crie a classe Scala BookmarkBC e deixe-a com o seguinte conteúdo:
+
+{% highlight scala %}
+package br.gov.serpro.frameworkdemoiselle.samples.scala_dev.business
+
+import br.gov.frameworkdemoiselle.lifecycle.Startup
+import br.gov.frameworkdemoiselle.stereotype.BusinessController
+import br.gov.frameworkdemoiselle.template.DelegateCrud
+import br.gov.frameworkdemoiselle.transaction.Transactional
+import br.gov.frameworkdemoiselle.samples.scala_dev.domain.Bookmark
+import br.gov.frameworkdemoiselle.samples.scala_dev.persistence.BookmarkDAO
+import javax.persistence.Entity
+import br.gov.frameworkdemoiselle.samples.scala_dev.domain.Bookmark
+import java.lang
+
+@SerialVersionUID(1)
+@BusinessController
+class BookmarkBC extends DelegateCrud[Bookmark, lang.Long, BookmarkDAO] {
+    
+    @Startup
+    @Transactional
+    def load() = {	  
+        if (findAll().isEmpty()) {			
+            insert(new Bookmark("Demoiselle Portal", "http://www.frameworkdemoiselle.gov.br"));
+            insert(new Bookmark("Demoiselle SourceForge", "http://sf.net/projects/demoiselle"));
+            insert(new Bookmark("Twitter", "http://twitter.frameworkdemoiselle.gov.br"));
+            insert(new Bookmark("Blog", "http://blog.frameworkdemoiselle.gov.br"));
+            insert(new Bookmark("Wiki", "http://wiki.frameworkdemoiselle.gov.br"));
+            insert(new Bookmark("Bug Tracking", "http://tracker.frameworkdemoiselle.gov.br"));
+            insert(new Bookmark("Forum", "http://forum.frameworkdemoiselle.gov.br"));
+            insert(new Bookmark("SVN", "http://svn.frameworkdemoiselle.gov.br"));
+            insert(new Bookmark("Maven", "http://repository.frameworkdemoiselle.gov.br"));
+            insert(new Bookmark("Downloads", "http://download.frameworkdemoiselle.gov.br"));
+        }
+    }
+    
+}
+{% endhighlight %}
+
+Ao tentar rodar o projeto no JBoss e acessar http://127.0.0.1:8080/scala_dev, o projeto ainda deve funcionar normalmente. Porém, se você abrir o arquivo BookmarkEditMB, verificará que o Eclipse está reclamando de um erro no método handleLoad. Não é um erro no código, e sim um bug no plugin Scala do Eclipse: ele erroneamente considera que o método BookmarkBC.load retorna um Object. Se você tentar gerar o war através do Maven, descobrirá que não há nenhum erro verdadeiro de compilação. Pois é, a integração da linguagem Scala funciona perfeitamente, mas o plugin do Eclipse ainda tem uns problemas... Pois bem, vamos migrar agora a classe BookmarkEditMB para que esse erro suma.
+
+## Migrando a classe BookmarkEditMB
+
+* Remova a classe BookmarkEditMB em src/main/java
+* Crie um pacote br.gov.frameworkdemoiselle.samples.scala_dev.view em src/main/scala
+* Nesse pacote, crie a classe Scala BookmarkEditMB e deixe-a com o seguinte conteúdo:
+
+{% highlight scala %}
+package br.gov.frameworkdemoiselle.samples.scala_dev.view;
+
+import javax.inject.Inject
+import br.gov.frameworkdemoiselle.annotation.PreviousView
+import br.gov.frameworkdemoiselle.samples.scala_dev.domain.Bookmark
+import br.gov.frameworkdemoiselle.stereotype.ViewController
+import br.gov.frameworkdemoiselle.template.AbstractEditPageBean
+import br.gov.frameworkdemoiselle.transaction.Transactional
+import br.gov.serpro.frameworkdemoiselle.samples.scala_dev.business.BookmarkBC
+import java.lang
+import br.gov.serpro.frameworkdemoiselle.samples.scala_dev.business.BookmarkBC
+
+@SerialVersionUID(1)
+@ViewController
+@PreviousView("/bookmark_list.xhtml")
+class BookmarkEditMB extends AbstractEditPageBean[Bookmark, lang.Long] {
+
+    @Inject
+    var  bookmarkBC : BookmarkBC = _
+
+    @Override
+    @Transactional
+    def delete() : String = {
+        this.bookmarkBC.delete(getId());
+        return getPreviousView();
+    }
+
+    @Override
+    @Transactional
+    def insert() : String = {
+        this.bookmarkBC.insert(getBean());
+        return getPreviousView();
+    }
+
+    @Override
+    @Transactional
+    def update() : String = {
+        this.bookmarkBC.update(getBean());
+        return getPreviousView();
+    }
+    
+    override def handleLoad(id: lang.Long) : Bookmark = {
+        return this.bookmarkBC.load(id);	  
+    } 
+}
+{% endhighlight %}
+
+Se você rodar o projeto de novo no JBoss, ele continua funcionando! Eu poderia migrar todas as classes, mas vou parar por aqui.
+
+# Resumo
+
+A linguagem Scala em si já é bastante madura e sua interoperabilidade com Java é bem interessante mesmo. Criamos um projeto que mistura os dois tipos sem nenhum problema. Infelizmente, ainda há alguns pequenos problemas com o plugin do Eclipse. Eu nem os havia percebido pois eu não uso o Eclipse para desenvolvimento Java nem Scala. A integração da IDE que uso (IntelliJ IDEA) não me deu nenhuma dor de cabeça. Espero que a versão 4.0 do plugin Scala IDE também seja assim. 
