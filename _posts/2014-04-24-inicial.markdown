@@ -2,6 +2,7 @@
 layout: post
 title:  "Usando Scala com Demoiselle 2 no Eclipse"
 date:   2014-04-24 15:45:24
+comments: true
 categories: scala eclipse demoiselle
 ---
 
