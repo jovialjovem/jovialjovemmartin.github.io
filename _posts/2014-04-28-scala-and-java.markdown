@@ -2,6 +2,7 @@
 layout: post
 title:  "Using Scala and Java together with Maven"
 date:   2014-04-24 15:45:24
+comments: true
 categories: scala maven java
 ---
 
