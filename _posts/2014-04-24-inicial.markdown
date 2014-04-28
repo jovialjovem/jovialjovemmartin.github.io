@@ -2,6 +2,7 @@
 layout: post
 title:  "Usando Scala com Demoiselle 2 no Eclipse"
 date:   2014-04-24 15:45:24
+comments: true
 categories: scala eclipse demoiselle
 ---
 
@@ -14,6 +15,7 @@ Felizmente, o Java 8 facilita muito esse tipo de trabalho, com a criação de "i
 Eu ficaria feliz em poder usar Java 8 agora. O problema é que, quando você lida com aplicações em ambientes corporativos, já sabe que suas chances de usar Java 8 antes de 2019 são inexistentes, ao menos para projetos legados. Ok, você não poderá utilizar Java 8 num futuro não-distante. Mas... e se você puder utilizar uma nova linguagem juntamente com a sua base de código Java já existente? E se essa linguagem permitir ao menos algumas coisas que você não consegue fazer em Java? E se essa linguagem permitir interoperabilidade com código Java? Seria bom, não é mesmo? Pois bem. eu tenho uma boa notícia: essa linguagem existe, e se chama [Scala](http://scala-lang.org/). 
 
 A linguagem Scala foi criada em 2003, e foi inicialmente criada para suportar a JVM e o .NET. Hoje em dia, a versão .NET já foi descontinuada, só restando a versão JVM. A linguagem tem algumas características bastante peculiares:
+
 * A linguagem Scala é bastante madura e utilizava em produção por diversas empresas (ex: Twitter, LinkedIn, Sony, etc).
 * O código Scala pode ser utilizado em Java e vice-versa. Pode até mesmo ser usada em Android, por exemplo. 
 * Permite tanto Orientação a Objeto quanto Programação Funcional.
