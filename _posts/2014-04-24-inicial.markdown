@@ -120,7 +120,7 @@ Adicione no arquivo pom.xml a referência ao repositório Scala, colocando logo 
     </repositories>
 {% endhighlight %}
 
-Adicione no mesmo pom.xml, logo antes da tag "</dependencies>", o conteúdo:
+Adicione no mesmo pom.xml, logo antes da tag "dependencies", o conteúdo:
 
 {% highlight xml %}
     <dependency>
@@ -133,7 +133,7 @@ Adicione no mesmo pom.xml, logo antes da tag "</dependencies>", o conteúdo:
 
 ## Fazendo o projeto compilar código-fonte Scala:
 
-Ainda no pom.xml, agora você precisa dizer ao Maven que você vai efetivamente compilar código Scala. Adicione logo antes da tag "</project>" o conteúdo:
+Ainda no pom.xml, agora você precisa dizer ao Maven que você vai efetivamente compilar código Scala. Adicione logo antes da tag "project" o conteúdo:
 
 {% highlight xml %}
     <build>
