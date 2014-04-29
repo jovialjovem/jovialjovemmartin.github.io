@@ -93,11 +93,11 @@ class Hello {
 Now, inside src/main/java, create the file Say.java with the contents:
 
 {% highlight java %}
-public class Main {
+public class Say {
     public static void main(String[] args) {
         new Hello().say(Hello.MESSAGE());
     }
 }
 {% endhighlight %}
 
-If you run the Main class, you'll see the infamous "Hello, World!" message.
+If you run the Say class, you'll see the infamous "Hello, World!" message.
