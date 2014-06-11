@@ -69,7 +69,7 @@ Não se preocupe com o parâmetro "username", você poderá especificar um nome 
 
 ## Passo 4: Instalar o cliente RTC
 
-O plugin do RTC, infelizmente, não funciona sozinho. Você precisa baixar o "SCM Tools" no site do Jazz Team Concert. Baixe a versão compatível com a versão do RTC no servidor. No meu caso, a versão compatível é (esta aqui)[https://jazz.net/downloads/rational-team-concert/releases/4.0.2/RTC-scmTools-Linux-4.0.2.zip]. 
+O plugin do RTC, infelizmente, não funciona sozinho. Você precisa baixar o "SCM Tools" no site do Jazz Team Concert. Baixe a versão compatível com a versão do RTC no servidor. No meu caso, a versão compatível é [esta aqui](https://jazz.net/downloads/rational-team-concert/releases/4.0.2/RTC-scmTools-Linux-4.0.2.zip). Sim, você precisará criar um usuário no jazz.net, blablabla... :(
 
 Depois de baixado o cliente RTC, descompacte-o no local de sua preferência (eu criei um diretório "apps" para guardar os aplicativos que baixo). Por exemplo, se você selecionar o diretório de destino "~/apps", será criado o diretório "~/apps/jazz". Depois de descompactado, edite o seu arquivo .bashrc do seu diretório pessoal e adicione o conteúdo abaixo no final do arquivo. 
 
