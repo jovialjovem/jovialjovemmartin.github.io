@@ -1,5 +1,6 @@
 function inicial() {
   var nome = 'gerarSeleniumJumpBoy';
+  nome = 'gerarMesasFinalIp';
   document.getElementById(nome).click()
 }
 
@@ -8,16 +9,22 @@ function utilEscreverLinks() {
   [
    {id: 'gerarSeleniumJumpBoy', title: "Colar a ordem dos dias (um para cada linha)"},
    {id: 'gerarLine', title: "Com base em <label>=<valor> gera i:group para ser usado dentro do i:line"}
+   , {id: 'gerarMesasFinalIp', title: "lista de ips para gerar os links necessarios para facilitar o acesso"}
    , {id: 'gerarPcolumn', title: "Com base em <label> gera p:column para ser usado dentro do dataTable, aponta para #{bean}"}
    , {id: 'gerarPreSufixo', title: "A primeira linha contem o template para identificar o prefixo e sufixo separado por $."}
    , {id: 'gerarNomeField', title: "Para cada linha tentar gerar um field"}
   ];
- for (var i = 0; funcoes.length; i++) {
+ var qtFuncoes = funcoes.length - 1;
+ for (var i = 0; qtFuncoes; i++) {
   var funcao = funcoes[i];
   document.write('<a href="#" onClick="javascript:' + funcao.id + '();" id="' + funcao.id + '" title="' + funcao.title + '">' + funcao.id + '</a> - ');
  }
 }
 
+
+function gerarMesasFinalIp() {
+  setValorResultado('j' + getLinhas());
+}
 
 function gerarNomeField() {
   ga('nome de usuario', 'nomeUsuario');
